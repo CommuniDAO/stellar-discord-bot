@@ -14,6 +14,7 @@ module.exports = {
   // assetsBuildDirectory: "public/build",
   // publicPath: "/build/",
   future: {
+    unstable_dev: false,
     v2_errorBoundary: false,
     v2_meta: false,
     v2_normalizeFormMethod: false,

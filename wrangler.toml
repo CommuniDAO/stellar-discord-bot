@@ -1,6 +1,6 @@
 name = "stellar-discord-bot"
 
-compatibility_date = "2022-04-05"
+compatibility_date = "2022-04-24"
 compatibility_flags = ["streams_enable_constructors"]
 
 kv_namespaces = [
