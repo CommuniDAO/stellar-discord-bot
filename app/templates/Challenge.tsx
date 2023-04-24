@@ -19,7 +19,6 @@ export const Challenge: React.FC<ChallengeProps> = ({ content }) => {
 
   React.useEffect(() => {
     if (fetcher.state === "idle" && fetcher.data == null) {
-      console.log('Fetching Once')
       fetcher.load(`/challenge/${public_key}`);
     }
   }, [fetcher]);
