@@ -10,7 +10,8 @@
     "typecheck": "tsc",
     "db:seeds": "npx wrangler d1 execute DB --file ./db/schema.sql",
     "db:seeds:local": "npx wrangler d1 execute DB --file ./db/schema.sql --local",
-    "wrangler": "wrangler pages dev ./public --ip 0.0.0.0 --local --persist --local-protocol https"
+    "wrangler": "wrangler pages dev ./public --ip 0.0.0.0 --local --persist --local-protocol http",
+    "fix-ds": "npx npm-link-shared ./node_modules/communi-design-system/node_modules . react"
   },
   "dependencies": {
     "@emotion/react": "^11.10.6",
@@ -39,7 +40,7 @@
     "@types/react-dom": "^18.0.8",
     "@walletconnect/sign-client": "latest",
     "better-sqlite3": "latest",
-    "communi-design-system": "0.0.17",
+    "communi-design-system": "../communi-design-system",
     "eslint": "^8.27.0",
     "npm-run-all": "^4.1.5",
     "react-qrcode-logo": "latest",
