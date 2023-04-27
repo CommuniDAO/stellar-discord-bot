@@ -1,10 +1,12 @@
 /* eslint-disable no-dupe-keys */
+import React from 'react';
 import type { LoaderFunction, LoaderArgs } from "@remix-run/cloudflare";
 import { parse } from "cookie";
 import { UserForm } from "~/forms";
 import { Discord, User } from "~/models";
 import { createUserSession } from "~/utils/session.server";
-
+import { useLoaderData } from '@remix-run/react';
+// import { redirect } from "@remix-run/cloudflare";
 export interface Env {
   DB: D1Database;
 }
@@ -24,7 +26,7 @@ export const loader: LoaderFunction = async ({
     const code = url.searchParams.get("code");
     const discordState = url.searchParams.get("state");
     console.log(`auth.discord.callback - loaderfunction - ${code}, ${cookies}, ${discordState}`)
-    if (!cookies || !code || !discordState) return null;
+    if (!cookies || !code || !discordState) return { message: 'State or Cookies are not set correctly'};
 
     const cookieHeader = parse(cookies);
     // make sure the state parameter exists
@@ -92,6 +94,19 @@ export const loader: LoaderFunction = async ({
     );
   } catch (e) {
     console.log(e);
-    return null;
+    return { message: 'Something went wrong'};
   }
 };
+
+type CallbackTroubleshootProps = {};
+
+export const CallbackTroubleshoot: React.FC<CallbackTroubleshootProps> = ({}) => {
+  const { message } = useLoaderData()
+  return (
+    <>
+      {message}
+    </>
+  );
+};
+
+export default CallbackTroubleshoot;
