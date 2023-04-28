@@ -1,5 +1,6 @@
 import { ImportAccount } from "~/templates/ImportAccount";
-import { type LoaderArgs, redirect } from "@remix-run/cloudflare";
+import { useLoaderData } from "@remix-run/react";
+import { type LoaderArgs, redirect, json } from "@remix-run/cloudflare";
 import { getUser } from "~/utils/session.server";
 
 export const loader = async ({ request, context }: LoaderArgs) => {
@@ -9,11 +10,14 @@ export const loader = async ({ request, context }: LoaderArgs) => {
   console.log("user", user)
   if (!user) return redirect('/')
   
-  return null
+  return json({ session: Boolean(user), user });
 };
 
 
 export default function Index() {
+  const session = useLoaderData();
+  console.log('session', session)
+  
   return (
       <ImportAccount />
   );

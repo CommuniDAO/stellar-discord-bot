@@ -8,7 +8,7 @@ export const loader = async ({ request, context }: LoaderArgs) => {
 
   const user =  await getUser(request, sessionStorage)
   console.log("user", user)
-  return json({ session: Boolean(user) });
+  return json({ session: Boolean(user), user });
 };
 
 export default function Index() {
