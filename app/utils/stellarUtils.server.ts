@@ -15,6 +15,7 @@ export async function generateAuthChallenge(
   oururl: string,
   clientState: string
 ) {
+  // TO DO: Check if pubkey is a valid stellar address
   let tempAccount = new Account(pubkey, "-1");
   let transaction = new TransactionBuilder(tempAccount, {
     fee: BASE_FEE,

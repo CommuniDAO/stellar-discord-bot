@@ -1,12 +1,14 @@
 import { redirect, json } from "@remix-run/cloudflare";
 
 interface SessionI {
+  id?: string;
   discord_user_id?: string;
+  user?: any;
   token?: string;
   clientState?: string;
-  isAuthed?: boolean;
   metadata?: any;
   isClaimed?: boolean;
+  account?: string | null;
   provider?: "albedo" | "rabet" | "freighter" | "wallet_connect" | null;
 }
 
@@ -24,7 +26,7 @@ export async function createUserSession(
   session.set("data", {
     ...sessionData,
   });
-  const { message, redirectTo } = response ?? {}
+  const { message, redirectTo } = response ?? {};
   const hasRedirect = Boolean(redirectTo) && typeof redirectTo === "string";
 
   if (hasRedirect) {
@@ -33,6 +35,14 @@ export async function createUserSession(
         "Set-Cookie": await sessionStorage.commitSession(session),
       },
     });
+  } else {
+    return json(
+      { message: message ? message : "Session Created" },
+      {
+        status: 200,
+        headers: { "Set-Cookie": await sessionStorage.commitSession(session) },
+      }
+    );
   }
 }
 
@@ -41,7 +51,10 @@ async function getUserSession(request: Request, sessionStorage: Storage) {
 }
 
 export async function getUser(request: Request, sessionStorage: Storage) {
+  console.log("sessionStorage", sessionStorage);
+
   const session = await getUserSession(request, sessionStorage);
+  console.log("session", session);
   return session.get("data");
 }
 

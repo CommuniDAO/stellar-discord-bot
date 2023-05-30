@@ -71,8 +71,8 @@ export async function action({ request, context, params }: ActionArgs) {
     
         const user = await User.findBy("discord_user_id", discord_user_id, DB);
         user[0].stellar_access_token = accesstoken;
-        user[0].stellar_refresh_token = refreshtoken;
-        user[0].stellar_expires_at = (payload.exp).toString();
+        // user[0].stellar_refresh_token = refreshtoken;
+        // user[0].stellar_expires_at = (payload.exp).toString();
         user[0].public_key = transaction.source;
         console.log(await User.update(user[0], DB));
       }
@@ -84,7 +84,7 @@ export async function action({ request, context, params }: ActionArgs) {
       return updateUserSession(
         request,
         sessionStorage,
-        { isAuthed: true, token: accesstoken, provider },
+        { token: accesstoken, provider, account: transaction.source },
         { redirectTo: "/claim" }
       );
     }

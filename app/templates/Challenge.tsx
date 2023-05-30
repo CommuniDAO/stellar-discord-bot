@@ -2,7 +2,7 @@ import React from "react";
 import { useFetcher } from "@remix-run/react";
 import { WalletClient } from "~/utils/WalletClient.client";
 import { Button } from "communi-design-system";
-
+import { useModal } from "~/context";
 type ChallengeProps = {
   content: {
     public_key: string;
@@ -11,7 +11,7 @@ type ChallengeProps = {
 };
 
 export const Challenge: React.FC<ChallengeProps> = ({ content }) => {
-  
+  // const { closeModal } = useModal();
   const { public_key, provider } = content as any;
   
   const fetcher = useFetcher();
@@ -22,6 +22,13 @@ export const Challenge: React.FC<ChallengeProps> = ({ content }) => {
       fetcher.load(`/challenge/${public_key}`);
     }
   }, [fetcher]);
+
+  // React.useEffect(() => {
+  //   console.log('payload', payload)
+  //   if (payload.data) {
+  //     closeModal();
+  //   }
+  // }, [payload])
 
   const signChallenge = async ({ challenge }: any) => {
     const wc = new WalletClient(provider, "TESTNET");

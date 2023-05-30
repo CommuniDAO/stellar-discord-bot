@@ -15,3 +15,16 @@ export interface UserDataI {
 export interface UserI extends Model {
   data: UserDataI
 }
+
+export interface StellarAccountDataI {
+  id?: string
+  users_id?: string
+  stellar_access_token?: string
+  stellar_refresh_token?: string
+  stellar_expires_at?: string
+  public_key?: string
+}
+
+export interface StellarAccountI extends Model {
+  data: StellarAccountDataI
+}
