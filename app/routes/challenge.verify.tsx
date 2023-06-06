@@ -9,21 +9,24 @@ import { getrefreshtoken, getaccesstoken } from "~/utils/auth.server";
 export async function action({ request, context }: ActionArgs) {
   const { sessionStorage } = context as any;
   const body = await request.formData();
-  const signedEnvelope = body.get("signed_envelope_xdr");
   const url = new URL(request.url);
+  const signedEnvelope = body.get("signed_envelope_xdr");
   const provider = url.searchParams.get("provider") as any;
   const cookies = request.headers.get("Cookie") ?? null;
+
   if (!cookies) return null;
   const cookieHeader = parse(cookies);
   const { clientState } = cookieHeader;
   const { discord_user_id } = (await getUser(request, sessionStorage)) ?? {};
+
   let areq = {
     Transaction: signedEnvelope,
     NETWORK_PASSPHRASE: Networks.PUBLIC,
     discord_user_id: discord_user_id
   };
-  const { Transaction, NETWORK_PASSPHRASE } = areq;
   
+  const { Transaction, NETWORK_PASSPHRASE } = areq;
+
   // TODO: Networks.PUBLIC or TESTNET should be set from 1 env variable.
   let passphrase: Networks = Networks.PUBLIC;
   if (NETWORK_PASSPHRASE) {

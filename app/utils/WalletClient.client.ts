@@ -41,20 +41,19 @@ class WalletClient {
     const { provider } = this;
     try {
       // const { provider, timestamp } = provider
+      let publicKey = "";
       if (provider === "albedo") {
-        const publicKey = await this.getAlbedoKey();
-        return { publicKey, message: "OK", code: 200 };
+        publicKey = await this.getAlbedoKey();
       } else if (provider === "rabet") {
-        const publicKey = await this.getRabetKey();
-        return { publicKey, message: "OK", code: 200 };
+        publicKey = await this.getRabetKey();
       } else if (provider === "freighter") {
-        const publicKey = await this.getFreighterKey();
-        console.log('publicKey freighter', publicKey)
-        return { publicKey, message: "OK", code: 200 };
+        publicKey = await this.getFreighterKey();
       } else if (provider === "wallet_connect") {
-        const publicKey = await this.getWalletConnectKey();
-        return { publicKey, message: "OK", code: 200 };
+        publicKey = await this.getWalletConnectKey();
       }
+      if (publicKey.length === 0) throw new Error(`Public key not found at ${provider}`);
+      return { publicKey, message: "OK", code: 200 };
+
     } catch (error: any) {
       const { message, code } = error ?? { message: "Error", code: 500 };
       return { message, code };
@@ -135,7 +134,8 @@ class WalletClient {
   private async signXBull() {}
 
   private async getAlbedoKey() {
-    return await albedo.publicKey({});
+    const { pubkey } = await albedo.publicKey({}) ?? {}
+    return pubkey;
   }
 
   private async getXBullKey() {}

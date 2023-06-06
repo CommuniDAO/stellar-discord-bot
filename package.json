@@ -11,7 +11,7 @@
     "db:seeds": "npx wrangler d1 execute DB --file ./db/schema.sql",
     "db:seeds:local": "npx wrangler d1 execute DB --file ./db/schema.sql --local",
     "db:seeds:upgrade": "npx wrangler d1 execute DB --file ./db/upgrades/upgrade_001.sql --local",
-    "wrangler": "wrangler pages dev ./public --ip 0.0.0.0 --local --persist --local-protocol https",
+    "wrangler": "wrangler pages dev ./public --ip 0.0.0.0 --local --persist --local-protocol http",
     "fix-ds": "npx npm-link-shared ./node_modules/communi-design-system/node_modules . react"
   },
   "dependencies": {
