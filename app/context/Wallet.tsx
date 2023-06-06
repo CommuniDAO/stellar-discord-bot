@@ -72,8 +72,11 @@ export const WalletProvider: FunctionComponent<WalletProviderProps> = ({
 
   const signChallenge = async (xdr: string) => {
     const { signed_envelope_xdr } = await client.signTransaction(xdr, false);
-    console.log("signed_envelope_xdr", signed_envelope_xdr);
-    if (!!signed_envelope_xdr && fetcher.type === "init") {
+    if (
+      !!signed_envelope_xdr &&
+      fetcher.state === "idle" &&
+      fetcher.data == null
+    ) {
       fetcher.submit(
         { signed_envelope_xdr },
         { method: "post", action: `/challenge/verify?provider=${provider}` }
@@ -91,7 +94,13 @@ export const WalletProvider: FunctionComponent<WalletProviderProps> = ({
 
   React.useEffect(() => {
     console.log("Wallet Provider", provider);
-  }, []);
+    if (fetcher.data) {
+      // Once the challenge is signed
+      // 1. we can close the modal
+      // 2. let the session storage know that the user is connected
+      console.log("fetcher data", fetcher.data);
+    }
+  }, [fetcher.data, provider]);
 
   return (
     <WalletContext.Provider
@@ -132,26 +141,6 @@ const WalletConnect = ({}: any) => {
   React.useEffect(() => {
     if (isBrowser) {
       initClient("wallet_connect");
-      // wc.initWalletConnect()
-      //   .then(({ uri }: any) => {
-      //     if (uri) {
-      //       setUrl(uri);
-      //       wc.getPublicKey().then(async (publicKey: any) => {
-      //         console.log("session, ", wc.getSession());
-      //         openModal({
-      //           type: "challenge",
-      //           content: {
-      //             public_key: publicKey,
-      //             provider: "wallet_connect",
-      //             padding: "large",
-      //           },
-      //         });
-      //       });
-      //     }
-      //   })
-      //   .catch((e: any) => {
-      //     console.log("error, ", e);
-      //   });
     }
   }, []);
 
@@ -184,17 +173,6 @@ const Albedo = ({}: any) => {
   React.useEffect(() => {
     initClient("albedo");
   }, []);
-  // const wc = new WalletClient("albedo", "TESTNET");
-  // wc.getPublicKey().then(async (account: any) => {
-  //   openModal({
-  //     type: "challenge",
-  //     content: {
-  //       public_key: account.pubkey,
-  //       provider: "albedo",
-  //       padding: "large",
-  //     },
-  //   });
-  // });
   return <Loader />;
 };
 
@@ -203,18 +181,6 @@ const Freighter = ({}: any) => {
   React.useEffect(() => {
     initClient("freighter");
   }, []);
-  // React.useEffect(() => {
-  //   if (isConnected()) {
-  //     const wc = new WalletClient("freighter", "TESTNET");
-  //     wc.getPublicKey().then(async (value: any) => {
-  //       const public_key = await value();
-  //       openModal({
-  //         type: "challenge",
-  //         content: { public_key, provider: "freighter", padding: "large" },
-  //       });
-  //     });
-  //   }
-  // }, []);
   return <Loader />;
 };
 
@@ -223,17 +189,6 @@ const Rabet = ({}: any) => {
   React.useEffect(() => {
     initClient("rabet");
   }, []);
-  // React.useEffect(() => {
-  //   const wc = new WalletClient("rabet", "TESTNET");
-  //   wc.getPublicKey().then(async (publicKey: any) => {
-  //     console.log("getting", publicKey);
-  //     openModal({
-  //       type: "challenge",
-  //       content: { public_key: publicKey, provider: "rabet", padding: "large" },
-  //     });
-  //   });
-  // }, []);
-
   return <Loader />;
 };
 
@@ -305,27 +260,44 @@ const ImportAccount: React.FC<ImportAccountProps> = ({}) => {
     <div className="flex flex-col">
       <div className="flex flex-row w-full">
         <div className="flex-1 w-full">
-          <IconHeading text="Extensions" icon="Extension" />
-          <div className="text-p2-medium">
-            Choose one of the login options to continue.
-          </div>
-          <div className="my-8">
-            <div className="flex flex-col space-y-4">
-              {publicKey ? (
-                <>
-                  <div>
-                    <p className="truncate">{publicKey}</p>
-                    <p className="truncate">{challenge}</p>
-                  </div>
-                  <Button
-                    customCss="w-full"
-                    icon="WalletConnect"
-                    text="Sign Challenge"
-                    onClick={() => signChallenge(challenge)}
-                  />
-                </>
-              ) : view === "" ? (
-                <>
+          {publicKey ? (
+            <>
+              <div className="text-h3-semi-bold">Challenge</div>
+              <div className="text-p3-medium">
+                Complete the following challenge to finish your
+                authentification.
+              </div>
+              <div className="text-p2-medium">Public Key</div>
+              <div
+                className="text-caption-bold truncate text-neutral-700 bg-neutral-400 rounded-md"
+                style={{ padding: "20px", marginTop: "8px" }}
+              >
+                <p className="truncate">{publicKey}</p>
+              </div>
+              <div className="text-p2-medium">Challenge XDR</div>
+              <div
+                className="text-caption-bold truncate text-neutral-700 bg-neutral-400 rounded-md"
+                style={{ padding: "20px", marginTop: "8px" }}
+              >
+                <p className="truncate">{challenge}</p>
+              </div>
+              <div className="mt-[20px]">
+                <Button
+                  customCss="w-full"
+                  icon="WalletConnect"
+                  text="Sign Challenge"
+                  onClick={() => signChallenge(challenge)}
+                />
+              </div>
+            </>
+          ) : view === "" ? (
+            <>
+              <IconHeading text="Extensions" icon="Extension" />
+              <div className="text-p2-medium">
+                Choose one of the login options to continue.
+              </div>
+              <div className="my-8">
+                <div className="flex flex-col space-y-4">
                   {options.map((item, key) => {
                     return (
                       <div key={key}>
@@ -339,13 +311,12 @@ const ImportAccount: React.FC<ImportAccountProps> = ({}) => {
                       </div>
                     );
                   })}
-                </>
-              ) : (
-                walletAssert(view)
-              )}
-              {}
-            </div>
-          </div>
+                </div>
+              </div>
+            </>
+          ) : (
+            <>{walletAssert(view)}</>
+          )}
         </div>
       </div>
       <div>

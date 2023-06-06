@@ -148,13 +148,7 @@ class WalletClient {
   }
 
   private async getFreighterKey() {
-    return async () => {
-      try {
-        return await freighterPublicKey();
-      } catch (e: any) {
-        console.log(e);
-      }
-    };
+    return await freighterPublicKey();
   }
 
   private async getWalletConnectKey() {
@@ -171,11 +165,7 @@ class WalletClient {
     return await this.approval();
   }
 
-  getSession() {
-    return this.session;
-  }
-
-  async signWalletConnect(xdr: string, submit: boolean = false) {
+  private async signWalletConnect(xdr: string, submit: boolean = false) {
     // Check if the XDR is valid.
     const { signedXDR: signed_envelope_xdr } = await this.client.request({
       topic: this.session.topic,
