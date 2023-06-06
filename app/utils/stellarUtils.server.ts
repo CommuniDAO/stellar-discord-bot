@@ -20,7 +20,7 @@ export async function generateAuthChallenge(
   let transaction = new TransactionBuilder(tempAccount, {
     fee: BASE_FEE,
     //todo: set the passphrase programatically based on an envvar
-    networkPassphrase: Networks.TESTNET,
+    networkPassphrase: Networks.PUBLIC,
   })
     // add a payment operation to the transaction
     .addOperation(
@@ -45,7 +45,7 @@ export async function generateAuthChallenge(
   return challenge;
 }
 
-export async function generateDefaultClaimTransaction(context, userPublicKey) {
+export async function generateDefaultClaimTransaction(context: any, userPublicKey: string) {
   console.log("generateDefaultClaimTransaction")
   try{
       let serverseqnumber = await getSequenceNumber(context, context.env.botpubkey);    
@@ -56,7 +56,7 @@ export async function generateDefaultClaimTransaction(context, userPublicKey) {
       const defaultRole = new Asset("defaultrole", serverPublicKey);
   const transaction = new TransactionBuilder(serverAccount, {
     fee: BASE_FEE,
-    networkPassphrase: Networks.TESTNET, // Use Networks.PUBLIC for the mainnet
+    networkPassphrase: Networks.PUBLIC, // Use Networks.PUBLIC for the mainnet
   })
     .addOperation(
       Operation.changeTrust({
@@ -86,15 +86,15 @@ export async function generateDefaultClaimTransaction(context, userPublicKey) {
   
   }
 
-export async function getAccountObject(context, pubkey){
-  let server = context.env.horizonURL;
+export async function getAccountObject(context: any, pubkey:string){
+  const { HORIZON_URL } = context.env;
   const account: Horizon.AccountResponse = await (
-      await fetch(`${server}/accounts/${pubkey}`)
+      await fetch(`${HORIZON_URL}/accounts/${pubkey}`)
     ).json();
   return account
 }
 
-export async function getSequenceNumber(context, pubkey){
+export async function getSequenceNumber(context: any, pubkey: string){
   let account = await getAccountObject(context, pubkey);
   return account.sequence;
 }

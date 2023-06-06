@@ -5,7 +5,7 @@ import { getUser } from "~/utils/session.server";
 import { useWallet } from "~/context";
 import React from 'react';
 export const loader = async ({ request, context }: LoaderArgs) => {
-  const { DB, sessionStorage } = context as any;
+  const { sessionStorage } = context as any;
 
   const user = await getUser(request, sessionStorage);
   console.log("user", user);

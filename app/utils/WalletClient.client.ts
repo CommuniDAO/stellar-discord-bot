@@ -1,6 +1,7 @@
 import albedo from "@albedo-link/intent";
 import {
   getPublicKey as freighterPublicKey,
+  isConnected,
   signTransaction as signTx,
 } from "@stellar/freighter-api";
 import { SignClient } from "@walletconnect/sign-client";

@@ -2,7 +2,7 @@ import * as React from "react";
 import { json, redirect, type LoaderArgs } from "@remix-run/cloudflare";
 import { getUser } from "~/utils/session.server";
 import { User } from "~/models";
-import { useModal } from "~/context";
+import { useModal, useWallet } from "~/context";
 import { Layout, Button } from "communi-design-system";
 import { WalletClient } from "~/utils/WalletClient.client";
 import { useFetcher, useLoaderData } from "@remix-run/react";
@@ -52,6 +52,7 @@ export const loader = async ({ request, context }: LoaderArgs) => {
 
 export default function Claim() {
   const { closeModal, isOpen, openModal } = useModal();
+  const { client } = useWallet();
   const { xdr, isClaimed, provider } = useLoaderData() ?? {};
   const fetcher = useFetcher();
 
@@ -73,8 +74,7 @@ export default function Claim() {
   }, [fetcher])
 
   const claimKey = async ({ xdr }: any) => {
-    const wc = new WalletClient(provider, "TESTNET");
-    const { horizonResult }: any = await wc.signTransaction(xdr, true);
+    const { horizonResult }: any = await client.signTransaction(xdr, true);
     if (horizonResult.successful) {
       openModal({ type: 'tx_success', content: horizonResult, padding: 'large' })
 

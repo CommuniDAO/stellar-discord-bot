@@ -2,9 +2,9 @@ import { Discord } from '~/models';
 import type { Horizon } from '~/types';
 
 export async function checkRoles(context: any, publickey: string, discord_user_id: string) {
-  let server = context.env.horizonURL;
+  const { HORIZON_URL } = context.env; 
   const account: Horizon.AccountResponse = await (
-    await fetch(`${server}/accounts/${publickey}`)
+    await fetch(`${HORIZON_URL}/accounts/${publickey}`)
   ).json();
   const balances: Horizon.BalanceLine[] = account.balances;
   

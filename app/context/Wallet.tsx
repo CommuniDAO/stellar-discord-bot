@@ -5,13 +5,10 @@ import { useTheme } from "./Theme";
 import { QRCode } from "react-qrcode-logo";
 import { useFetcher } from "@remix-run/react";
 import {
-  RadioGroup,
   Button,
   Loader,
-  Layout,
   Icon,
 } from "communi-design-system";
-import { isConnected } from "@stellar/freighter-api";
 import { isBrowser } from "~/utils/misc.client";
 
 type WalletProviderProps = { children: ReactElement };
@@ -52,6 +49,7 @@ export const WalletProvider: FunctionComponent<WalletProviderProps> = ({
   const initClient = (provider: Provider) => {
     if (provider === null) return;
     setProvider(provider);
+
     const wc = new WalletClient(provider, "PUBLIC");
     setClient(wc);
     if (provider === "wallet_connect") {
