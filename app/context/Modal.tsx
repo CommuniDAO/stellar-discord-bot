@@ -1,9 +1,10 @@
-import React, { type ReactElement, type FunctionComponent } from 'react';
-import { useTheme } from './Theme'
-import { Modal as ModalComponent } from 'communi-design-system';
-import { Challenge } from '~/templates/Challenge';
-import { TxSuccess } from '~/templates/TxSuccess';
-type ModalProviderProps = { children: ReactElement }
+import React, { type ReactElement, type FunctionComponent } from "react";
+import { useTheme } from "./Theme";
+import { Modal as ModalComponent } from "communi-design-system";
+import { Challenge } from "~/templates/Challenge";
+import { TxSuccess } from "~/templates/TxSuccess";
+import { ImportAccount } from "~/templates/ImportAccount";
+type ModalProviderProps = { children: ReactElement };
 type ModalContextType = {
   isOpen: boolean;
   openModal: (action: {
@@ -18,16 +19,16 @@ type ModalContextType = {
   closeModal: () => void;
 };
 
-enum ModalTypeE {
-
-}
+enum ModalTypeE {}
 
 const modalAssert = (action: { type: string; content: any }) => {
   switch (action.type) {
-    case 'challenge':
-      return <Challenge content={action.content} />
-    case 'tx_success':
-      return <TxSuccess content={action.content} />
+    case "challenge":
+      return <Challenge content={action.content} />;
+    case "tx_success":
+      return <TxSuccess content={action.content} />;
+    case "import_account":
+      return <ImportAccount />;
     default:
       return <></>;
   }
@@ -37,18 +38,20 @@ export const ModalContext = React.createContext<ModalContextType>(
   {} as ModalContextType
 );
 
-export const ModalProvider: FunctionComponent<ModalProviderProps> = ({ children }) => {
+export const ModalProvider: FunctionComponent<ModalProviderProps> = ({
+  children,
+}) => {
   const { theme } = useTheme();
 
   const [isOpen, setIsOpen] = React.useState(false);
   const [state, setState] = React.useState({
-    type: '',
+    type: "",
     content: {},
     onClose: () => {},
-    padding: '',
-    size: '',
+    padding: "",
+    size: "",
     showBar: true,
-    overflow: false
+    overflow: false,
   });
 
   const openModal = (action: {

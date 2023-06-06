@@ -104,7 +104,7 @@ export default function Claim() {
           >
             {/* {!isClaimed ? */}
             <>
-              <div className="text-h4-normal-semi-bold text-center">
+              <div className="text-h4-semi-bold text-center">
                 Membership Key
               </div>
               <img
@@ -123,14 +123,14 @@ export default function Claim() {
                   onClick={() => claimKey({ xdr })}
                 />
               )}
-              <div className="text-paragraph-medium-medium text-center mt-[20px]">
+              <div className="text-p2-medium text-center mt-[20px]">
                 This key will give you access to the discord server
               </div>
             </>
             {/* :
             <>
             <div
-            className="text-paragraph-medium-medium text-center mt-[20px]"
+            className="text-p2-medium text-center mt-[20px]"
             >You already own the membership key</div>
             </>
             } */}

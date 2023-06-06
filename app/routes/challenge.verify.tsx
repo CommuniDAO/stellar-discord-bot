@@ -6,11 +6,10 @@ import { User } from "../models";
 import jwt from "@tsndr/cloudflare-worker-jwt";
 import { getrefreshtoken, getaccesstoken } from "~/utils/auth.server";
 
-export async function action({ request, context, params }: ActionArgs) {
+export async function action({ request, context }: ActionArgs) {
   const { sessionStorage } = context as any;
   const body = await request.formData();
   const signedEnvelope = body.get("signed_envelope_xdr");
-  console.log(`from challenge.verify - action - signedEnvelope ${signedEnvelope}`);
   const url = new URL(request.url);
   const provider = url.searchParams.get("provider") as any;
   const cookies = request.headers.get("Cookie") ?? null;
@@ -20,11 +19,13 @@ export async function action({ request, context, params }: ActionArgs) {
   const { discord_user_id } = (await getUser(request, sessionStorage)) ?? {};
   let areq = {
     Transaction: signedEnvelope,
-    NETWORK_PASSPHRASE: Networks.TESTNET,
+    NETWORK_PASSPHRASE: Networks.PUBLIC,
     discord_user_id: discord_user_id
   };
   const { Transaction, NETWORK_PASSPHRASE } = areq;
-  let passphrase: Networks = Networks.TESTNET;
+  
+  // TODO: Networks.PUBLIC or TESTNET should be set from 1 env variable.
+  let passphrase: Networks = Networks.PUBLIC;
   if (NETWORK_PASSPHRASE) {
     passphrase = NETWORK_PASSPHRASE;
   }
@@ -55,8 +56,6 @@ export async function action({ request, context, params }: ActionArgs) {
     const accesstoken = await getaccesstoken(refreshtoken, request, context);
     if (accesstoken){
     const { payload } = jwt.decode(refreshtoken)
-      console.log('chk2 in auth.ts function')
-      console.log(await User.findBy('discord_user_id', discord_user_id, DB))
 
       // If user does not exist, create it
       if (!userExists) {

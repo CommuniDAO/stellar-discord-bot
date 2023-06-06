@@ -8,8 +8,8 @@ export const TxSuccess: React.FC<TxSuccessProps> = ({ content }) => {
   console.log('content', content)
   return (
     <>
-      <div className="text-h3-normal-semi-bold text-green">Success!</div>
-      <div className="text-paragraph-medium-medium">
+      <div className="text-h3-semi-bold text-green">Success!</div>
+      <div className="text-p2-medium">
         <span>You have successfully claimed the Key to access </span>
         <span className="font-bold">Member role</span>.
       </div>

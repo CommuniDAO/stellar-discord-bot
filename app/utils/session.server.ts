@@ -51,10 +51,7 @@ async function getUserSession(request: Request, sessionStorage: Storage) {
 }
 
 export async function getUser(request: Request, sessionStorage: Storage) {
-  console.log("sessionStorage", sessionStorage);
-
   const session = await getUserSession(request, sessionStorage);
-  console.log("session", session);
   return session.get("data");
 }
 

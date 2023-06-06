@@ -27,7 +27,8 @@
     "model-one": "^0.0.7",
     "react": "^17",
     "react-dom": "^17",
-    "stellar-base": "^8.2.2"
+    "stellar-base": "^8.2.2",
+    "communi-design-system": "../communi-design-system"
   },
   "devDependencies": {
     "@albedo-link/intent": "latest",
@@ -39,7 +40,6 @@
     "@types/react-dom": "^17",
     "@walletconnect/sign-client": "latest",
     "better-sqlite3": "latest",
-    "communi-design-system": "../communi-design-system",
     "eslint": "^8.27.0",
     "nodemon": "^2.0.22",
     "npm-run-all": "^4.1.5",
