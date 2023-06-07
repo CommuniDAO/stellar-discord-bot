@@ -3,7 +3,7 @@ import { json, type ActionArgs } from "@remix-run/cloudflare";
 import { parse } from "cookie";
 import { updateUserSession, getUser } from "~/utils/session.server";
 import { User } from "../models";
-import jwt from "@tsndr/cloudflare-worker-jwt";
+// import jwt from "@tsndr/cloudflare-worker-jwt";
 import { getRefreshToken, getAccessToken } from "~/utils/auth.server";
 
 export async function action({ request, context }: ActionArgs) {
@@ -68,7 +68,6 @@ export async function action({ request, context }: ActionArgs) {
     const accesstoken = await getAccessToken(refreshtoken, request, context);
     if (accesstoken) {
       // const { payload } = jwt.decode(refreshtoken);
-
       // If user does not exist, create it
       if (!userExists) {
         const errmsg = JSON.stringify("User does not exist.");
@@ -95,7 +94,7 @@ export async function action({ request, context }: ActionArgs) {
         request,
         sessionStorage,
         { token: accesstoken, provider, account: builtTx.source },
-        { redirectTo: "/claim" }
+        { message: "Challenge verified", body: { account: builtTx.source, provider } }
       );
     }
   } else {

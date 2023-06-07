@@ -3,7 +3,7 @@ import React from 'react';
 import { type LoaderFunction, type LoaderArgs } from "@remix-run/cloudflare";
 import { parse } from "cookie";
 import { useLoaderData, useFetcher } from '@remix-run/react';
-import { getUser } from '~/utils/session.server';
+// import { getUser } from '~/utils/session.server';
 
 export interface Env {
   DB: D1Database;
@@ -62,9 +62,8 @@ export const Callback: React.FC<CallbackProps> = ({}) => {
         { method: 'post', action: '/auth/discord/check' }
       );
     } else if (fetcher.data && fetcher.state === "idle") {
-      window.location.replace("/connect");
+      window.location.replace("/");
     }
-    console.log("fetcher", fetcher)
   }, [code, clientState, fetcher])
 
   return (

@@ -30,9 +30,9 @@ export const loader = async ({ request, context }: LoaderArgs) => {
   const { payload } = jwt.decode(accesstoken);
 
   const { userid } = payload;
-  console.log(payload, "PAYLOAD");
-  console.log(userid, "DISCORD USER ID");
-  console.log(await User.findBy("discord_user_id", userid, DB));
+  // console.log(payload, "PAYLOAD");
+  // console.log(userid, "DISCORD USER ID");
+  // console.log(await User.findBy("discord_user_id", userid, DB));
   const public_key = payload.sub as string;
   //todo:check if the user ever claimed the asset even if the balance is 0, as they can only claim once
   //todo: make it an authonly asset or make that an option in the asset creation.
@@ -52,7 +52,7 @@ export const loader = async ({ request, context }: LoaderArgs) => {
 
 export default function Claim() {
   const { closeModal, isOpen, openModal } = useModal();
-  const { client } = useWallet();
+  const { signTransaction } = useWallet();
   const { xdr, isClaimed, provider } = useLoaderData() ?? {};
   const fetcher = useFetcher();
 
@@ -74,7 +74,7 @@ export default function Claim() {
   }, [fetcher])
 
   const claimKey = async ({ xdr }: any) => {
-    const { horizonResult }: any = await client.signTransaction(xdr, true);
+    const { horizonResult }: any = await signTransaction(xdr, true);
     if (horizonResult.successful) {
       openModal({ type: 'tx_success', content: horizonResult, padding: 'large' })
 

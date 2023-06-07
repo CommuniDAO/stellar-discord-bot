@@ -4,24 +4,27 @@ import { Modal } from "communi-design-system";
 import { useTheme } from "./Theme";
 import { QRCode } from "react-qrcode-logo";
 import { useFetcher } from "@remix-run/react";
-import {
-  Button,
-  Loader,
-  Icon,
-} from "communi-design-system";
+import { Button, Loader, Icon } from "communi-design-system";
 import { isBrowser } from "~/utils/misc.client";
 
-type WalletProviderProps = { children: ReactElement };
+type Status = "connected" | "disconnected" | "challenge";
+type WalletProviderProps = {
+  children: ReactElement;
+  walletAuthed: boolean;
+  provider: Provider;
+  publicKey: string;
+};
 type Provider = "albedo" | "rabet" | "freighter" | "wallet_connect";
 type Client = any | null;
 type WalletContextType = {
   provider: Provider | null;
   url: string | null;
   publicKey: string | null;
+  status: Status;
   getProvider: () => void;
   newSession: () => void;
   initClient: (provider: Provider) => void;
-  signTransaction: (xdr: string) => void;
+  signTransaction: (xdr: string, submit: boolean) => void;
   signChallenge: (xdr: string) => void;
 };
 
@@ -31,17 +34,25 @@ export const WalletContext = React.createContext<WalletContextType>(
 
 export const WalletProvider: FunctionComponent<WalletProviderProps> = ({
   children,
+  walletAuthed,
+  publicKey: publicKeyProp,
+  provider: providerProp,
 }) => {
   const { theme } = useTheme();
-  const [provider, setProvider] = React.useState<Provider | null>(null);
-  const [status, setStatus] = React.useState<"connected" | "disconnected">(
-    "disconnected"
+  const [provider, setProvider] = React.useState<Provider | null>(
+    providerProp ? providerProp : null
   );
-  const [publicKey, setPublicKey] = React.useState<string | null>(null);
+  const [status, setStatus] = React.useState<Status>(
+    walletAuthed ? "connected" : "disconnected"
+  );
+  const [publicKey, setPublicKey] = React.useState<string | null>(
+    publicKeyProp ? publicKeyProp : null
+  );
   const [client, setClient] = React.useState<Client>(null);
   const [isOpen, setIsOpen] = React.useState(false);
   const [url, setUrl] = React.useState<string | null>(null);
   const fetcher = useFetcher();
+
   const closeModal = () => {
     setIsOpen(false);
   };
@@ -56,17 +67,25 @@ export const WalletProvider: FunctionComponent<WalletProviderProps> = ({
       wc.initWalletConnect().then(({ uri }: any) => {
         setUrl(uri);
         wc.getPublicKey().then(async ({ publicKey, code, message }: any) => {
-          if (code === 200) setPublicKey(publicKey);
+          if (code === 200) {
+            setStatus("challenge");
+            setPublicKey(publicKey);
+          }
         });
       });
     } else {
       wc.getPublicKey().then(async ({ publicKey, code, message }: any) => {
-        if (code === 200) setPublicKey(publicKey);
+        if (code === 200) {
+          setStatus("challenge");
+          setPublicKey(publicKey);
+        }
       });
     }
   };
 
-  const signTransaction = async (xdr: string) => {};
+  const signTransaction = async (xdr: string, submit: boolean = false) => {
+    return await client.signTransaction(xdr, submit);
+  };
 
   const signChallenge = async (xdr: string) => {
     const { signed_envelope_xdr } = await client.signTransaction(xdr, false);
@@ -91,14 +110,15 @@ export const WalletProvider: FunctionComponent<WalletProviderProps> = ({
   };
 
   React.useEffect(() => {
-    console.log("Wallet Provider", provider);
-    if (fetcher.data) {
-      // Once the challenge is signed
-      // 1. we can close the modal
-      // 2. let the session storage know that the user is connected
-      console.log("fetcher data", fetcher.data);
+    if (fetcher.state === "idle" && fetcher.data !== undefined) {
+      const { body } = fetcher.data;
+      const { account, provider } = body;
+      if (account === publicKey && provider === provider) {
+        setStatus("connected");
+        setIsOpen(false);
+      }
     }
-  }, [fetcher.data, provider]);
+  }, [fetcher]);
 
   return (
     <WalletContext.Provider
@@ -108,6 +128,7 @@ export const WalletProvider: FunctionComponent<WalletProviderProps> = ({
         newSession,
         initClient,
         url,
+        status,
         publicKey,
         signChallenge,
         signTransaction,
@@ -236,13 +257,64 @@ const IconHeading = ({ text, icon }: any) => {
   );
 };
 
+const Challenge: React.FC<{
+  signChallenge: (xdr: string) => void;
+  challenge: string | null;
+  publicKey: string | null;
+}> = ({ signChallenge, challenge, publicKey }) => {
+  return (
+    <>
+      <div className="text-h3-semi-bold">Challenge</div>
+      <div className="text-p3-medium">
+        Complete the following challenge to finish your authentification.
+      </div>
+      <div className="text-p2-medium">Public Key</div>
+      <div
+        className="text-caption-bold truncate text-neutral-700 bg-neutral-400 rounded-md"
+        style={{ padding: "20px", marginTop: "8px" }}
+      >
+        <p className="truncate">{publicKey}</p>
+      </div>
+      <div className="text-p2-medium">Challenge XDR</div>
+      <div
+        className="text-caption-bold truncate text-neutral-700 bg-neutral-400 rounded-md"
+        style={{ padding: "20px", marginTop: "8px" }}
+      >
+        <p className="truncate">{challenge}</p>
+      </div>
+      <div className="mt-[20px]">
+        <Button
+          customCss="w-full"
+          icon="WalletConnect"
+          text="Sign Challenge"
+          onClick={() => signChallenge(challenge)}
+        />
+      </div>
+    </>
+  );
+};
+const Footer: React.FC = ({}) => {
+  return (
+    <div>
+      <div className="text-caption-medium text-center">
+        <span>By continuing you accept our </span>
+        <span className="text-caption-underlined text-primary-700">
+          term of conditioons
+        </span>
+        <span> and our </span>
+        <span className="text-caption-underlined text-primary-700">
+          privacy policy
+        </span>
+      </div>
+    </div>
+  );
+};
 const ImportAccount: React.FC<ImportAccountProps> = ({}) => {
-  const { publicKey, signChallenge } = useWallet();
+  const { publicKey, signChallenge, provider, status } = useWallet();
   const [view, setView] = React.useState("");
   const fetcher = useFetcher();
 
   React.useEffect(() => {
-    console.log("publicKey", publicKey);
     if (
       publicKey !== null &&
       fetcher.state === "idle" &&
@@ -258,36 +330,15 @@ const ImportAccount: React.FC<ImportAccountProps> = ({}) => {
     <div className="flex flex-col">
       <div className="flex flex-row w-full">
         <div className="flex-1 w-full">
-          {publicKey ? (
-            <>
-              <div className="text-h3-semi-bold">Challenge</div>
-              <div className="text-p3-medium">
-                Complete the following challenge to finish your
-                authentification.
-              </div>
-              <div className="text-p2-medium">Public Key</div>
-              <div
-                className="text-caption-bold truncate text-neutral-700 bg-neutral-400 rounded-md"
-                style={{ padding: "20px", marginTop: "8px" }}
-              >
-                <p className="truncate">{publicKey}</p>
-              </div>
-              <div className="text-p2-medium">Challenge XDR</div>
-              <div
-                className="text-caption-bold truncate text-neutral-700 bg-neutral-400 rounded-md"
-                style={{ padding: "20px", marginTop: "8px" }}
-              >
-                <p className="truncate">{challenge}</p>
-              </div>
-              <div className="mt-[20px]">
-                <Button
-                  customCss="w-full"
-                  icon="WalletConnect"
-                  text="Sign Challenge"
-                  onClick={() => signChallenge(challenge)}
-                />
-              </div>
-            </>
+          <div>status: {status}</div>
+          <div>provider: {provider}</div>
+          <div>piblicKey: {publicKey}</div>
+          {status === "challenge" ? (
+            <Challenge
+              signChallenge={signChallenge}
+              challenge={challenge}
+              publicKey={publicKey}
+            />
           ) : view === "" ? (
             <>
               <IconHeading text="Extensions" icon="Extension" />
@@ -317,18 +368,7 @@ const ImportAccount: React.FC<ImportAccountProps> = ({}) => {
           )}
         </div>
       </div>
-      <div>
-        <div className="text-caption-medium text-center">
-          <span>By continuing you accept our </span>
-          <span className="text-caption-underlined text-primary-700">
-            term of conditioons
-          </span>
-          <span> and our </span>
-          <span className="text-caption-underlined text-primary-700">
-            privacy policy
-          </span>
-        </div>
-      </div>
+      <Footer />
     </div>
   );
 };

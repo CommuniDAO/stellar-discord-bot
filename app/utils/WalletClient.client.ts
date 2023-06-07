@@ -61,17 +61,17 @@ class WalletClient {
     }
   }
 
-  async signTransaction(txXDR: string, submit: boolean = false) {
+  async signTransaction(xdr: string, submit: boolean = false) {
     const { provider } = this;
     try {
       if (provider === "albedo") {
-        return await this.signAlbedo(txXDR, submit);
+        return await this.signAlbedo(xdr, submit);
       } else if (provider === "rabet") {
-        return await this.signRabet(txXDR, submit);
+        return await this.signRabet(xdr, submit);
       } else if (provider === "freighter") {
-        return await this.signFreighter(txXDR, submit);
+        return await this.signFreighter(xdr, submit);
       } else if (provider === "wallet_connect") {
-        return await this.signWalletConnect(txXDR, submit);
+        return await this.signWalletConnect(xdr, submit);
       }
     } catch (error) {
       console.log(error);
