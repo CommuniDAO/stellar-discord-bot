@@ -28,7 +28,7 @@
     "react": "^17",
     "react-dom": "^17",
     "stellar-base": "^8.2.2",
-    "communi-design-system": "../communi-design-system"
+    "communi-design-system": "0.0.21"
   },
   "devDependencies": {
     "@albedo-link/intent": "latest",
