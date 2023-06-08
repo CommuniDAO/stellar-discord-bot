@@ -13,6 +13,7 @@ type WalletProviderProps = {
   walletAuthed: boolean;
   provider: Provider;
   publicKey: string;
+  network: 'PUBLIC' | 'TESTNET';
 };
 type Provider = "albedo" | "rabet" | "freighter" | "wallet_connect";
 type Client = any | null;
@@ -37,6 +38,7 @@ export const WalletProvider: FunctionComponent<WalletProviderProps> = ({
   walletAuthed,
   publicKey: publicKeyProp,
   provider: providerProp,
+  network
 }) => {
   const { theme } = useTheme();
   const [provider, setProvider] = React.useState<Provider | null>(
@@ -61,7 +63,7 @@ export const WalletProvider: FunctionComponent<WalletProviderProps> = ({
     if (provider === null) return;
     setProvider(provider);
 
-    const wc = new WalletClient(provider, "PUBLIC");
+    const wc = new WalletClient(provider, network);
     setClient(wc);
     if (provider === "wallet_connect") {
       wc.initWalletConnect().then(({ uri }: any) => {
@@ -85,7 +87,7 @@ export const WalletProvider: FunctionComponent<WalletProviderProps> = ({
 
   const restoreSession = async () => {
     if (provider === null) return;
-    const wc = new WalletClient(provider, "PUBLIC");
+    const wc = new WalletClient(provider, network);
     wc.restoreSession();
     setClient(wc);
   }

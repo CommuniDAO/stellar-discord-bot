@@ -6,7 +6,9 @@ import { Keypair } from "stellar-base";
 // URL: /challenge/$public_key
 export const loader = async ({ request, context, params }: LoaderArgs) => {
   const { sessionStorage } = context as any;
+  const { NETWORK_PASSPHRASE } = context.env as any;
   const { publicKey } = params
+  console.log('NETWORK_PASSPHRASE', NETWORK_PASSPHRASE)
   console.log('challenge.$publickey loader', publicKey)
   // Check if publicKey is a valid ED25519 address
   if (!publicKey) return;
@@ -14,6 +16,6 @@ export const loader = async ({ request, context, params }: LoaderArgs) => {
   const { authsigningkey } = context.env as any;
   const uri = new URL(request.url).origin
   let serverKeypair = Keypair.fromSecret(String(authsigningkey));
-  const challenge = await generateAuthChallenge(serverKeypair, publicKey, discord_user_id, uri, clientState)
+  const challenge = await generateAuthChallenge(serverKeypair, publicKey, discord_user_id, uri, clientState, NETWORK_PASSPHRASE)
   return json({ challenge });
 };

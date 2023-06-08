@@ -13,14 +13,16 @@ export async function generateAuthChallenge(
   pubkey: string,
   discordID: string,
   oururl: string,
-  clientState: string
+  clientState: string,
+  NETWORK_PASSPHRASE: any
 ) {
+  console.log('NETWORK_PASSPHRASE', NETWORK_PASSPHRASE)
   // TO DO: Check if pubkey is a valid stellar address
   let tempAccount = new Account(pubkey, "-1");
   let transaction = new TransactionBuilder(tempAccount, {
     fee: BASE_FEE,
     //todo: set the passphrase programatically based on an envvar
-    networkPassphrase: Networks.PUBLIC,
+    networkPassphrase: NETWORK_PASSPHRASE,
   })
     // add a payment operation to the transaction
     .addOperation(

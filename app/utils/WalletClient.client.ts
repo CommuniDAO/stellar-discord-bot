@@ -25,6 +25,7 @@ class WalletClient {
   session: any;
   approval: any;
   uri: any;
+  horizon_url: string | null;
   chain: "stellar:testnet" | "stellar:pubnet" | null;
 
   constructor(provider: Provider, network: Network) {
@@ -34,6 +35,7 @@ class WalletClient {
     this.session = null;
     this.approval = null;
     this.uri = null;
+    this.horizon_url = null;
     this.chain = null;
   }
 
@@ -62,6 +64,7 @@ class WalletClient {
 
   async signTransaction(xdr: string, submit: boolean = false) {
     const { provider } = this;
+    if (this.horizon_url === null) this.setHorizonUrl()
     try {
       if (provider === "albedo") {
         return await this.signAlbedo(xdr, submit);
@@ -79,16 +82,16 @@ class WalletClient {
 
   async restoreSession() {
     await this.initWalletConnectClient()
+    this.setHorizonUrl()
     this.setWalletConnectChain()
     const lastKeyIndex = this.client.session.getAll().length - 1;
     this.session = this.client.session.getAll()[lastKeyIndex];
   }
 
   private async submitTx(xdr: string) {
-    const { network } = this;
     const txThresholds = encodeURIComponent(xdr);
     return await (
-      await fetch(`https://horizon.stellar.org/transactions/`, {
+      await fetch(`https://${this.horizon_url}/transactions/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
@@ -234,6 +237,14 @@ class WalletClient {
       ? WalletConnectChains.TESTNET
       : WalletConnectChains.PUBLIC;
   }
+
+  private setHorizonUrl() {
+    this.horizon_url =
+    this.network === "TESTNET"
+      ? "horizon-testnet.stellar.org"
+      : "horizon.stellar.org";
+  }
+  
 
   private async createConnection() {
     if (this.client === null) return { message: "Client not initialized" }

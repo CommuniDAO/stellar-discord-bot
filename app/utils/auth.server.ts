@@ -89,14 +89,15 @@ export async function getRefreshToken(transaction: any, request: any, context: a
 
 
 export async function getAccessToken(refreshtoken: any, request: any, context: any){
+  const { NETWORK_PASSPHRASE } = context.env
   let validity = jwt.verify(refreshtoken, context.env.authsigningkey)
   if (!validity){
     throw('the token is not valid')
   }
   const { payload } = jwt.decode(refreshtoken) // decode the refresh token
-  let passphrase = Networks.PUBLIC
+  // let passphrase = NETWORK_PASSPHRASE
   console.log('trying to get an access token')
-  const ntransaction = new (TransactionBuilder.fromXDR as any)(payload.xdr, passphrase)
+  const ntransaction = new (TransactionBuilder.fromXDR as any)(payload.xdr, NETWORK_PASSPHRASE)
   //let transaction = payload.xdr
  // console.log(ntransaction)
   const decoder = new TextDecoder();

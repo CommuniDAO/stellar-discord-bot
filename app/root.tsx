@@ -46,15 +46,22 @@ function checkRequirement(
 }
 
 export const loader = async ({ request, context }: LoaderArgs) => {
-  const { sessionStorage } = context as any;
+  const { sessionStorage, env } = context as any;
+  const { STELLAR_NETWORK } = env;
   const authProgress =
     (await getUserAuthProgress(request, sessionStorage)) ?? {};
-  const { provider, account } =
-  (await getUser(request, sessionStorage)) ?? {};
+  const { provider, account } = (await getUser(request, sessionStorage)) ?? {};
   if (authProgress === null) return null;
   const discordAuthed = checkRequirement(authProgress, "discord_auth");
   const walletAuthed = checkRequirement(authProgress, "wallet_auth");
-  return json({ discordAuthed, walletAuthed, authProgress, provider, account });
+  return json({
+    discordAuthed,
+    walletAuthed,
+    authProgress,
+    provider,
+    account,
+    STELLAR_NETWORK,
+  });
 };
 
 const Layout = ({
@@ -78,7 +85,14 @@ const Layout = ({
 };
 
 export default function App() {
-  const { authProgress, discordAuthed, walletAuthed, provider, account } = useLoaderData() ?? {};
+  const {
+    authProgress,
+    discordAuthed,
+    walletAuthed,
+    provider,
+    account,
+    STELLAR_NETWORK,
+  } = useLoaderData() ?? {};
 
   return (
     <html lang="en" className="light">
@@ -93,7 +107,12 @@ export default function App() {
         <Links />
       </head>
       <body>
-        <WalletProvider walletAuthed={!walletAuthed} publicKey={account} provider={provider}>
+        <WalletProvider
+          walletAuthed={!walletAuthed}
+          publicKey={account}
+          provider={provider}
+          network={STELLAR_NETWORK}
+        >
           <ModalProvider>
             <Layout
               authProgress={authProgress}
