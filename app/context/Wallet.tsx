@@ -22,12 +22,10 @@ type WalletContextType = {
   url: string | null;
   publicKey: string | null;
   status: Status;
-  getProvider: () => void;
   newSession: () => void;
   initClient: (provider: Provider) => void;
   signTransaction: (xdr: string, submit: boolean) => void;
   signChallenge: (xdr: string) => void;
-  restoreSession: () => void;
 };
 
 export const WalletContext = React.createContext<WalletContextType>(
@@ -88,7 +86,7 @@ export const WalletProvider: FunctionComponent<WalletProviderProps> = ({
   const restoreSession = async () => {
     if (provider === null) return;
     const wc = new WalletClient(provider, "PUBLIC");
-    wc.persistSession();
+    wc.restoreSession();
     setClient(wc);
   }
 
@@ -110,13 +108,15 @@ export const WalletProvider: FunctionComponent<WalletProviderProps> = ({
     }
   };
 
-  const getProvider = () => {
-    return provider;
-  };
-
   const newSession = () => {
     setIsOpen(true);
   };
+
+  React.useEffect(() => {
+    if (provider === "wallet_connect" && client === null) {
+      restoreSession();
+    }
+  }, [provider, client])
 
   React.useEffect(() => {
     if (fetcher.state === "idle" && fetcher.data !== undefined) {
@@ -133,7 +133,6 @@ export const WalletProvider: FunctionComponent<WalletProviderProps> = ({
     <WalletContext.Provider
       value={{
         provider,
-        getProvider,
         newSession,
         initClient,
         url,
@@ -141,7 +140,6 @@ export const WalletProvider: FunctionComponent<WalletProviderProps> = ({
         publicKey,
         signChallenge,
         signTransaction,
-        restoreSession
       }}
     >
       {children}

@@ -13,7 +13,7 @@ export const loader = async ({ request, context }: LoaderArgs) => {
 
 export default function Index() {
   const { view } = useLoaderData();
-  const { newSession, signTransaction, restoreSession } = useWallet();
+  const { newSession, signTransaction } = useWallet();
 
   return (
     <div>
@@ -21,7 +21,6 @@ export default function Index() {
         component={Link}
         view={view}
         openWallet={newSession}
-        restoreSession={restoreSession}
         signTransaction={signTransaction}
       />
     </div>

@@ -76,7 +76,8 @@ class WalletClient {
       console.log(error);
     }
   }
-  async persistSession() {
+
+  async restoreSession() {
     await this.initWalletConnectClient()
     this.setWalletConnectChain()
     const lastKeyIndex = this.client.session.getAll().length - 1;
@@ -172,6 +173,7 @@ class WalletClient {
   }
 
   private async signWalletConnect(xdr: string, submit: boolean = false) {
+    if (this.client === null) return { message: "WalletConnect not connected", code: 500 };
     // Check if the XDR is valid.
     const { signedXDR: signed_envelope_xdr } = await this.client.request({
       topic: this.session.topic,
@@ -234,6 +236,7 @@ class WalletClient {
   }
 
   private async createConnection() {
+    if (this.client === null) return { message: "Client not initialized" }
     this.setWalletConnectChain()
 
     const { uri, approval } = await this.client.connect({
