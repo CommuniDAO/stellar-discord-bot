@@ -16,6 +16,7 @@ type WalletProviderProps = {
 };
 type Provider = "albedo" | "rabet" | "freighter" | "wallet_connect";
 type Client = any | null;
+
 type WalletContextType = {
   provider: Provider | null;
   url: string | null;
@@ -26,6 +27,7 @@ type WalletContextType = {
   initClient: (provider: Provider) => void;
   signTransaction: (xdr: string, submit: boolean) => void;
   signChallenge: (xdr: string) => void;
+  restoreSession: () => void;
 };
 
 export const WalletContext = React.createContext<WalletContextType>(
@@ -83,6 +85,13 @@ export const WalletProvider: FunctionComponent<WalletProviderProps> = ({
     }
   };
 
+  const restoreSession = async () => {
+    if (provider === null) return;
+    const wc = new WalletClient(provider, "PUBLIC");
+    wc.persistSession();
+    setClient(wc);
+  }
+
   const signTransaction = async (xdr: string, submit: boolean = false) => {
     return await client.signTransaction(xdr, submit);
   };
@@ -132,6 +141,7 @@ export const WalletProvider: FunctionComponent<WalletProviderProps> = ({
         publicKey,
         signChallenge,
         signTransaction,
+        restoreSession
       }}
     >
       {children}
@@ -283,12 +293,14 @@ const Challenge: React.FC<{
         <p className="truncate">{challenge}</p>
       </div>
       <div className="mt-[20px]">
-        <Button
-          customCss="w-full"
-          icon="WalletConnect"
-          text="Sign Challenge"
-          onClick={() => signChallenge(challenge)}
-        />
+        {challenge && (
+          <Button
+            customCss="w-full"
+            icon="WalletConnect"
+            text="Sign Challenge"
+            onClick={() => signChallenge(challenge)}
+          />
+        )}
       </div>
     </>
   );
@@ -333,13 +345,14 @@ const ImportAccount: React.FC<ImportAccountProps> = ({}) => {
           <div>status: {status}</div>
           <div>provider: {provider}</div>
           <div>piblicKey: {publicKey}</div>
-          {status === "challenge" ? (
+          {status === "challenge" && (
             <Challenge
               signChallenge={signChallenge}
               challenge={challenge}
               publicKey={publicKey}
             />
-          ) : view === "" ? (
+          )}
+          {status === "disconnected" && view === "" ? (
             <>
               <IconHeading text="Extensions" icon="Extension" />
               <div className="text-p2-medium">
@@ -368,7 +381,7 @@ const ImportAccount: React.FC<ImportAccountProps> = ({}) => {
           )}
         </div>
       </div>
-      <Footer />
+      {status !== "connected" && <Footer />}
     </div>
   );
 };

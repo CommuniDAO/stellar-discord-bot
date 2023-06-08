@@ -55,7 +55,6 @@ export default function Claim() {
   const { signTransaction } = useWallet();
   const { xdr, isClaimed, provider } = useLoaderData() ?? {};
   const fetcher = useFetcher();
-
   React.useEffect(() => {
     if (isOpen) {
       closeModal();

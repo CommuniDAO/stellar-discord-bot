@@ -1,7 +1,6 @@
 import albedo from "@albedo-link/intent";
 import {
   getPublicKey as freighterPublicKey,
-  isConnected,
   signTransaction as signTx,
 } from "@stellar/freighter-api";
 import { SignClient } from "@walletconnect/sign-client";
@@ -52,9 +51,9 @@ class WalletClient {
       } else if (provider === "wallet_connect") {
         publicKey = await this.getWalletConnectKey();
       }
-      if (publicKey.length === 0) throw new Error(`Public key not found at ${provider}`);
+      if (publicKey.length === 0)
+        throw new Error(`Public key not found at ${provider}`);
       return { publicKey, message: "OK", code: 200 };
-
     } catch (error: any) {
       const { message, code } = error ?? { message: "Error", code: 500 };
       return { message, code };
@@ -76,6 +75,12 @@ class WalletClient {
     } catch (error) {
       console.log(error);
     }
+  }
+  async persistSession() {
+    await this.initWalletConnectClient()
+    this.setWalletConnectChain()
+    const lastKeyIndex = this.client.session.getAll().length - 1;
+    this.session = this.client.session.getAll()[lastKeyIndex];
   }
 
   private async submitTx(xdr: string) {
@@ -135,7 +140,7 @@ class WalletClient {
   private async signXBull() {}
 
   private async getAlbedoKey() {
-    const { pubkey } = await albedo.publicKey({}) ?? {}
+    const { pubkey } = (await albedo.publicKey({})) ?? {};
     return pubkey;
   }
 
@@ -191,17 +196,7 @@ class WalletClient {
   async initWalletConnect() {
     // make them env variables
     try {
-      this.client = await SignClient.init({
-        projectId: "de5dffb20a999465a31bef12a0defd9b",
-        metadata: {
-          name: "CommuuniDAO",
-          url: "my-auth-dapp.com",
-          description: "CommuniDAO is the Stellar Dao Discord Bot",
-          icons: [
-            "https://cdn.discordapp.com/attachments/1094354605401460896/1094354605887996104/StellarDiscordDaoBot.png",
-          ],
-        },
-      });
+      await this.initWalletConnectClient()
 
       const { uri, approval } = await this.createConnection();
 
@@ -214,11 +209,32 @@ class WalletClient {
     }
   }
 
-  private async createConnection() {
+  private async initWalletConnectClient() {
+    try {
+      this.client = await SignClient.init({
+        projectId: "de5dffb20a999465a31bef12a0defd9b",
+        metadata: {
+          name: "CommuuniDAO",
+          url: "my-auth-dapp.com",
+          description: "CommuniDAO is the Stellar Dao Discord Bot",
+          icons: [
+            "https://cdn.discordapp.com/attachments/1094354605401460896/1094354605887996104/StellarDiscordDaoBot.png",
+          ],
+        },
+      });
+    } catch (error) {
+      console.error("Error in WalletConnect init: ", error);
+    } 
+  }
+  private setWalletConnectChain() {
     this.chain =
-      this.network === "TESTNET"
-        ? WalletConnectChains.TESTNET
-        : WalletConnectChains.PUBLIC;
+    this.network === "TESTNET"
+      ? WalletConnectChains.TESTNET
+      : WalletConnectChains.PUBLIC;
+  }
+
+  private async createConnection() {
+    this.setWalletConnectChain()
 
     const { uri, approval } = await this.client.connect({
       requiredNamespaces: {
