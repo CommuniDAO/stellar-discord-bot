@@ -1,8 +1,7 @@
 import React, { type ReactElement, type FunctionComponent } from "react";
 import { WalletClient } from "~/utils/WalletClient.client";
-import { Modal } from "communi-design-system";
+import { Modal, QRCode } from "communi-design-system";
 import { useTheme } from "./Theme";
-import { QRCode } from "react-qrcode-logo";
 import { useFetcher } from "@remix-run/react";
 import { Button, Loader, Icon } from "communi-design-system";
 import { isBrowser } from "~/utils/misc.client";
