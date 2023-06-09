@@ -12,7 +12,7 @@ type WalletProviderProps = {
   walletAuthed: boolean;
   provider: Provider;
   publicKey: string;
-  network: 'PUBLIC' | 'TESTNET';
+  network: "PUBLIC" | "TESTNET";
 };
 type Provider = "albedo" | "rabet" | "freighter" | "wallet_connect";
 type Client = any | null;
@@ -37,7 +37,7 @@ export const WalletProvider: FunctionComponent<WalletProviderProps> = ({
   walletAuthed,
   publicKey: publicKeyProp,
   provider: providerProp,
-  network
+  network,
 }) => {
   const { theme } = useTheme();
   const [provider, setProvider] = React.useState<Provider | null>(
@@ -89,7 +89,7 @@ export const WalletProvider: FunctionComponent<WalletProviderProps> = ({
     const wc = new WalletClient(provider, network);
     wc.restoreSession();
     setClient(wc);
-  }
+  };
 
   const signTransaction = async (xdr: string, submit: boolean = false) => {
     return await client.signTransaction(xdr, submit);
@@ -117,7 +117,7 @@ export const WalletProvider: FunctionComponent<WalletProviderProps> = ({
     if (provider === "wallet_connect" && client === null) {
       restoreSession();
     }
-  }, [provider, client])
+  }, [provider, client]);
 
   React.useEffect(() => {
     if (fetcher.state === "idle" && fetcher.data !== undefined) {
@@ -149,7 +149,7 @@ export const WalletProvider: FunctionComponent<WalletProviderProps> = ({
         closeModal={closeModal}
         theme={theme}
         padding="large"
-        size="medium"
+        size="small"
         showBar={false}
         overflow={false}
       >
@@ -179,19 +179,28 @@ const WalletConnect = ({}: any) => {
   return !url ? (
     <Loader />
   ) : (
-    <div>
-      <QRCode
-        value={url}
-        logoImage="https://imagedelivery.net/uDbEDRBQqhBXrrfuCRrATQ/eee714c7-b85b-42cf-23f7-d986b99c1b00/public"
-        logoHeight={48}
-        logoWidth={48}
-        eyeRadius={8}
-        size={256}
-        bgColor="#C8D1E6"
-        fgColor="#03050B"
-        removeQrCodeBehindLogo={true}
-        qrStyle="dots"
-      />
+    <div className="flex flex-col">
+      <div className="mb-[20px]">
+        <IconHeading text="Wallet Connect" icon="WalletConnect" />
+        <div className="text-p3-medium">
+          Connect using the Lobster app on your phone and scan the QR code.
+        </div>
+      </div>
+      <div className="flex justify-center">
+        <QRCode
+          value={url}
+          logoImage="https://imagedelivery.net/uDbEDRBQqhBXrrfuCRrATQ/eee714c7-b85b-42cf-23f7-d986b99c1b00/public"
+          logoHeight={48}
+          logoWidth={48}
+          eyeRadius={8}
+          size={256}
+          bgColor="#C8D1E6"
+          fgColor="#03050B"
+          eyeColor="#03050B"
+          removeQrCodeBehindLogo={true}
+          qrStyle="dots"
+        />
+      </div>
     </div>
   );
 };
@@ -321,7 +330,7 @@ const Footer: React.FC = ({}) => {
   );
 };
 const ImportAccount: React.FC<ImportAccountProps> = ({}) => {
-  const { publicKey, signChallenge, provider, status } = useWallet();
+  const { publicKey, signChallenge, status } = useWallet();
   const [view, setView] = React.useState("");
   const fetcher = useFetcher();
 
@@ -341,9 +350,6 @@ const ImportAccount: React.FC<ImportAccountProps> = ({}) => {
     <div className="flex flex-col">
       <div className="flex flex-row w-full">
         <div className="flex-1 w-full">
-          <div>status: {status}</div>
-          <div>provider: {provider}</div>
-          <div>piblicKey: {publicKey}</div>
           {status === "challenge" && (
             <Challenge
               signChallenge={signChallenge}
@@ -351,11 +357,11 @@ const ImportAccount: React.FC<ImportAccountProps> = ({}) => {
               publicKey={publicKey}
             />
           )}
-          {status === "disconnected" && view === "" ? (
+          {status === "disconnected" && view === "" && (
             <>
-              <IconHeading text="Extensions" icon="Extension" />
+              <IconHeading text="Wallets" icon="Extension" />
               <div className="text-p2-medium">
-                Choose one of the login options to continue.
+                Choose one of the following login options to continue.
               </div>
               <div className="my-8">
                 <div className="flex flex-col space-y-4">
@@ -374,13 +380,24 @@ const ImportAccount: React.FC<ImportAccountProps> = ({}) => {
                   })}
                 </div>
               </div>
+              <Footer />
             </>
-          ) : (
-            <>{walletAssert(view)}</>
+          )}
+          {status === "disconnected" && view !== "" && (
+            <div>
+              <div>{walletAssert(view)}</div>
+              <div>
+                <Button
+                  text="Cancel"
+                  variant="basic"
+                  customCss="w-full mt-[20px]"
+                  onClick={() => setView("")}
+                />
+              </div>
+            </div>
           )}
         </div>
       </div>
-      {status !== "connected" && <Footer />}
     </div>
   );
 };
