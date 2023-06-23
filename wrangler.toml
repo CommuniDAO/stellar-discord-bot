@@ -1,20 +1,18 @@
-name = "scf-discord-bot"
+name = "stellar-discord-bot"
 
 compatibility_date = "2022-04-05"
-
-usage_model="unbound"
+compatibility_flags = ["streams_enable_constructors"]
 
 kv_namespaces = [
-    { binding = "SESSION_STORAGE", id = "8b7d15e78c0c42deb9fceb8b05190a7c", preview_id = "4bcd720d70ef4bd9ab1e0bd3b952305b" },
-    { binding = "TOMLKEYS", id = "b2b65162e00a4ac785aa0b77e8660df2", preview_id = "c5e77c42db1b402d92ae819117bcced3" },
-    { binding = "ROLEDATA", id = "5ca8bd87c38347119999a0f36f3097a2", preview_id = "6ba22652d4ab4170a406a2e26928ed9f" }
+    { binding = "SESSION_STORAGE", id = "3e72ac9816ab45909c493267dac88d1b", preview_id = "51bb79ab719b4271aedc5f9556beec8d" },
+    { binding = "TOMLKEYS", id = "20aae67ac807482098ad13f1ca7e4337", preview_id = "fb2d0cdb0c9c4f1986221338ece1b44d" },
+    { binding = "ROLEDATA", id = "0f5933381b0a43a8b658b912f0c6a984", preview_id = "7de201d67bbc4da8a5b96fbf10f05b79" }
 ]
 [site]
   bucket = "./public"
 [build]
   command = "npm run build"
-
 [[ d1_databases ]]
 binding = "DB" # i.e. available in your Worker on env.DB
-database_name = "SCFDBDATA"
-database_id = "6120043f-d1e6-409f-850a-6892e3257253"
+database_name = "SDBDATA"
+database_id = "8a4b3992-9618-4a2e-b948-c39b4290e922"

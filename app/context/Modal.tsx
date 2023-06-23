@@ -1,18 +1,16 @@
-import React, { type ReactElement, type FunctionComponent } from "react";
-import { useTheme } from "./Theme";
-import { Modal as ModalComponent } from "~/components/Modal";
-import { DiscordLogin } from '~/components/DiscordLogin';
-import { StellarAccounts } from '~/components/StellarAccounts';
-//import { BadgeViewer } from '~/components/BadgeViewer';
-import { TxSuccess } from "~/templates/TxSuccess";
-type ModalProviderProps = { children: ReactElement };
+import React, { type ReactElement, type FunctionComponent } from 'react';
+import { useTheme } from './Theme'
+import { Modal as ModalComponent } from 'communi-design-system';
+import { Challenge } from '~/templates/Challenge';
+import { TxSuccess } from '~/templates/TxSuccess';
+type ModalProviderProps = { children: ReactElement }
 type ModalContextType = {
   isOpen: boolean;
   openModal: (action: {
     type: string;
     content?: any;
-    padding?: "large" | "medium" | "small" | "none";
-    size?: "large" | "medium" | "small" | "fit";
+    padding?: any;
+    size?: any;
     showBar?: boolean;
     onClose?: () => void;
   }) => void;
@@ -21,21 +19,15 @@ type ModalContextType = {
 };
 
 enum ModalTypeE {
-  DISCORD_LOGIN = "discord_login",
-  TX_SUCCESS = "tx_success",
-  STELLAR_ACCOUNTS = "stellar_accounts",
-  ACCOUNT_HANDLER = "account_handler",
+
 }
 
 const modalAssert = (action: { type: string; content: any }) => {
   switch (action.type) {
-    case ModalTypeE.TX_SUCCESS:
-      return <TxSuccess content={action.content} />;
-    case ModalTypeE.DISCORD_LOGIN:
-      return <DiscordLogin />;
-    case ModalTypeE.STELLAR_ACCOUNTS:
-      //console.log(action.content.userAccounts, 'action.content.userAccounts in modal')
-        return <StellarAccounts uAccounts={action.content.userAccounts}/>;
+    case 'challenge':
+      return <Challenge content={action.content} />
+    case 'tx_success':
+      return <TxSuccess content={action.content} />
     default:
       return <></>;
   }
@@ -45,27 +37,25 @@ export const ModalContext = React.createContext<ModalContextType>(
   {} as ModalContextType
 );
 
-export const ModalProvider: FunctionComponent<ModalProviderProps> = ({
-  children,
-}) => {
+export const ModalProvider: FunctionComponent<ModalProviderProps> = ({ children }) => {
   const { theme } = useTheme();
 
   const [isOpen, setIsOpen] = React.useState(false);
   const [state, setState] = React.useState({
-    type: "",
+    type: '',
     content: {},
     onClose: () => {},
-    padding: "large",
-    size: "medium",
+    padding: '',
+    size: '',
     showBar: true,
-    overflow: false,
+    overflow: false
   });
 
   const openModal = (action: {
     type: string;
     content?: any;
     padding?: any;
-    size?: "large" | "medium" | "small" | "fit" ;
+    size?: any;
     showBar?: any;
     overflow?: any;
     onClose?: any;
@@ -75,8 +65,8 @@ export const ModalProvider: FunctionComponent<ModalProviderProps> = ({
       type: action.type,
       content: action.content,
       onClose: action.onClose,
-      padding: action.padding,
-      size: action.size === undefined ? 'medium' : action.size,
+      padding: action.padding && action.padding,
+      size: action.size && action.size,
       showBar: action.showBar,
       overflow: action.overflow,
     });

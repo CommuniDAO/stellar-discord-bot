@@ -274,8 +274,6 @@ export namespace Horizon {
       OperationResponseType.payment,
       OperationResponseTypeI.payment
     > {
-    status?: string;
-    message?: string;
     from: string;
     to: string;
     asset_type: AssetType;
@@ -568,8 +566,6 @@ export namespace Horizon {
   }
 
   export interface ResponseCollection<T extends BaseResponse = BaseResponse> {
-    status?: number;
-    message?: string;
     _links: {
       self: ResponseLink;
       next: ResponseLink;

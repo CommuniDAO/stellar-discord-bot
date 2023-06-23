@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "jsx": "react-jsx",
+    "moduleResolution": "node",
+    "lib": ["esnext"],
+    "types": [
+      "@cloudflare/workers-types",
+      "stellar-base"
+    ],
+    "plugins": [
+      {
+        "name": "typescript-lit-html-plugin"
+      }
+    ]
+  }
+}
