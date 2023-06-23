@@ -1,24 +1,31 @@
+
 import type { EntryContext } from "@remix-run/cloudflare";
 import { RemixServer } from "@remix-run/react";
-import { renderToString } from "react-dom/server";
-import { Buffer } from "buffer-polyfill";
 
-// Polyfill Buffer on the server
-globalThis.Buffer = Buffer as unknown as BufferConstructor;
-export default function handleRequest(
+import { renderToReadableStream } from "react-dom/server";
+
+
+export default async function handleRequest(
   request: Request,
   responseStatusCode: number,
   responseHeaders: Headers,
   remixContext: EntryContext
 ) {
-  const markup = renderToString(
-    <RemixServer context={remixContext} url={request.url} />
+  
+  const body = await renderToReadableStream(
+    <RemixServer context={remixContext} url={request.url} />,
+    {
+      signal: request.signal,
+      onError(error: unknown) {
+        console.error(error);
+        responseStatusCode = 500;
+      },
+    }
   );
 
   responseHeaders.set("Content-Type", "text/html");
-
-  return new Response("<!DOCTYPE html>" + markup, {
-    status: responseStatusCode,
+  return new Response(body, {
     headers: responseHeaders,
+    status: responseStatusCode,
   });
 }

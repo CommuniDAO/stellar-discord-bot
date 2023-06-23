@@ -1,6 +1,7 @@
 node_modules
 wrangler.toml
 /.cache
+IGNORE
 /functions/\[\[path\]\].js
 /functions/\[\[path\]\].js.map
 /public/build
@@ -11,4 +12,8 @@ tunnle
 .wrangler/state/d1/DB.sqlite3
 .wrangler
 .vscode
+file.session.sql
+utils/register_discord_metadata.ts
+utils/register_discord_metadata.mjs
 old
+linked-roles-bot

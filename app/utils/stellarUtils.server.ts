@@ -1,13 +1,5 @@
-import {
-  Account,
-  TransactionBuilder,
-  Networks,
-  Operation,
-  BASE_FEE,
-  Asset,
-  Keypair
-} from 'stellar-base';
-
+import type { Horizon } from 'horizon-api';
+import type { Keypair } from 'stellar-base';
 export async function generateAuthChallenge(
   serverkey: Keypair,
   pubkey: string,
@@ -15,11 +7,12 @@ export async function generateAuthChallenge(
   oururl: string,
   clientState: string
 ) {
+  const {TransactionBuilder, Operation, Account, Networks, BASE_FEE} = await import('stellar-base');
   let tempAccount = new Account(pubkey, "-1");
   let transaction = new TransactionBuilder(tempAccount, {
     fee: BASE_FEE,
     //todo: set the passphrase programatically based on an envvar
-    networkPassphrase: Networks.TESTNET,
+    networkPassphrase: Networks.PUBLIC,
   })
     // add a payment operation to the transaction
     .addOperation(
@@ -47,6 +40,7 @@ export async function generateAuthChallenge(
 export async function generateDefaultClaimTransaction(context, userPublicKey) {
   console.log("generateDefaultClaimTransaction")
   try{
+    const {Asset, Keypair, TransactionBuilder, Operation, Account, Networks, BASE_FEE} = await import('stellar-base');
       let serverseqnumber = await getSequenceNumber(context, context.env.botpubkey);    
       let serverAccount = new Account(context.env.botpubkey, serverseqnumber);
       const serverPublicKey = context.env.botpubkey;
@@ -55,7 +49,7 @@ export async function generateDefaultClaimTransaction(context, userPublicKey) {
       const defaultRole = new Asset("defaultrole", serverPublicKey);
   const transaction = new TransactionBuilder(serverAccount, {
     fee: BASE_FEE,
-    networkPassphrase: Networks.TESTNET, // Use Networks.PUBLIC for the mainnet
+    networkPassphrase: Networks.PUBLIC, // Use Networks.PUBLIC for the mainnet
   })
     .addOperation(
       Operation.changeTrust({

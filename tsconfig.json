@@ -1,8 +1,8 @@
 {
-  "include": ["remix.env.d.ts", "**/*.ts", "**/*.tsx"],
-  "exclude": ["functions/**/*"],
+  "include": ["remix.env.d.ts", "**/*.ts", "**/*.tsx", "tailwind.config.ts.old"],
+  "exclude": ["node_modules/**/*", "**/*.spec.ts"],
   "compilerOptions": {
-    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "lib": ["ESNext"],
     "isolatedModules": true,
     "esModuleInterop": true,
     "jsx": "react-jsx",
@@ -15,7 +15,8 @@
     "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
     "paths": {
-      "~/*": ["./app/*"]
+      "~/*": ["./app/*"],
+      "@/*": ["./*"]
     },
     "types": [
       "@cloudflare/workers-types",
